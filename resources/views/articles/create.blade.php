@@ -36,8 +36,9 @@
                     <label for="category">Category</label>
                     <select class="form-control" name="category" id="category">
                         <option value="#" disabled checked>Pilih category</option>
-                        <option value="Programming">Programming</option>
-                        <option value="Berita Terkini">Berita Terkini</option>
+                        @foreach ($categories as $category)
+                            <option value="{{ $category->id }}">{{ $category->title }}</option>
+                        @endforeach
                     </select>
                 </div>
 

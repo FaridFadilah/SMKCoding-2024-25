@@ -2,17 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
+use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ArticleController extends Controller{
     public function index(){
-        $data = [
-            [
-                "title" => "Cara efektif membuat controller",
-                "content" => "Cara efektif untuk membuat controller yaitu dengan menggunaka perintah artisan.",
-                "category" => "Programing"
-            ]
-        ];
+        $data = DB::table("articles")
+            ->join("categories", "articles.category_id", "=", "categories.id")
+            ->select(
+                "articles.*",
+                "categories.title as category"
+            )
+            ->get();
 
         return view("articles.index", [
             "data" => $data
@@ -20,7 +23,11 @@ class ArticleController extends Controller{
     }
 
     public function create(){
-        return view("articles.create");
+        $categories = Category::all();
+
+        return view("articles.create", [
+            "categories" => $categories
+        ]);
     }
 
     public function store(Request $request){
@@ -39,8 +46,9 @@ class ArticleController extends Controller{
 
         $data = [
             "title" => $request->title,
+            "user_id" => 0,
             "content" => $request->content,
-            "category" => $request->category,
+            "category_id" => $request->category,
         ];
 
         if($request->has("cover")){
@@ -50,8 +58,8 @@ class ArticleController extends Controller{
             $data["cover"] = url("/image/".$nameFile);
         }
 
-        return view("articles.detail", [
-            "data" => $data
-        ]);
+        Article::create($data);
+
+        return redirect()->route("articles.index");
     }
 }
